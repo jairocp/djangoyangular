@@ -1,0 +1,251 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" ng-app="appPy">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+
+
+	  <link href="{% static  'themeblog/css/bootstrap.css' %}" rel="stylesheet" />
+
+
+
+</head>
+<body>
+
+
+
+{% csrf_token %}
+
+ 
+<div ng-controller="Conapi">
+
+<div ng-repeat="articulo in data" >
+<h2 class="text-info"> {$ articulo.pk $}</h2>
+<h1 ng-click="enviar(articulo)" class="text-success">{$ articulo.fields.titulo $}</h1>
+<p>{$ articulo.fields.cuerpo $}</p>
+
+
+
+
+
+
+  
+
+
+</div>
+
+<div class="row">
+<div class="col-xs-6">
+	
+	
+
+
+
+<div>
+
+<form role="form">{% csrf_token %}
+
+  <div class="form-group">
+    <label for="ejemplo_email_1">Titulo</label>
+    <input type="text" class="form-control" id="ejemplo_email_1" placeholder="Introduce un titulo" ng-model="titulo3">
+  </div>
+  <div class="form-group">
+    <label for="ejemplo_password_1">Cuerpo</label>
+    <textarea class="form-control" rows="5" id="comment" ng-model="cuerpo3"></textarea>
+  </div>
+  
+ <div class="row text-center"><button type="submit" class="btn btn-primary btn-lg" ng-click="enviarp()">Guardar</button></div>
+  
+</form>
+</div>
+
+
+
+</div>
+
+	
+</div>
+
+
+
+<ul>
+    <li dir-paginate="art in data | itemsPerPage: 10">{$ art.fields.titulo $}</li>
+</ul>
+
+
+
+
+<dir-pagination-controls></dir-pagination-controls>
+
+</div>
+
+
+
+
+	  <script src="{% static 'themeblog/js/jquery-1.10.2.js' %}"></script>
+    <!-- BOOTSTRAP SCRIPTS -->
+    <script src="{% static 'themeblog/js/bootstrap.js' %}"></script>
+    <script src="{% static 'themeblog/js/DjangoAjax.js' %}"></script>
+      <script src="{% static 'themeblog/js/angular.min.js' %}"></script>
+<script src="{% static 'themeblog/js/dirPagination.js' %}"></script>
+
+
+ 
+
+
+
+
+
+    <script type='text/javascript' language='javascript'>
+
+angular
+.module('appPy', ['angularUtils.directives.dirPagination'])
+.controller('Conapi', ['$scope','$http', '$timeout',function($scope,$http,$timeout){
+	$scope.data=[];
+$scope.infoP=[];
+$scope.importar=function  () {
+	// body...
+	$http.get('/blog/ajaxp').then(
+function(response){
+	$scope.data=response.data;
+	$scope.status=response.status;
+	$scope.infoP=$scope.data;
+
+},function(response){
+	 $scope.data = response.data || 'Request failed';
+        $scope.status = response.status;
+
+}
+
+
+
+	);
+};
+
+$scope.importar();
+
+
+$scope.enviar=function  (articulo) {
+	// body...
+
+	alert('el articulo es ' +articulo.fields.titulo);
+}
+
+/*
+
+
+$scope.enviarp=function  () {
+	// body...
+$scope.info={titulo2:$scope.titulo3,cuerpo2:$scope.cuerpo3};
+
+	$http.post('/blog/create',{titulo2:'si',cuerpo2:'no'}).then(
+function(response){
+	$scope.inte=response.data;
+	$scope.status2=response.status;
+
+},function(response){
+	 $scope.inte = response.data || 'Request failed';
+        $scope.status2 = response.status;
+
+}
+
+
+	);
+
+
+	alert(""+ $scope.info +" titulo "+ $scope.titulo3);
+};
+*/
+
+
+
+/*
+$param es de jquery
+
+then
+la primera funcion es  cuando se envia con exito y la segunda cunado hay algun error
+*/
+
+$scope.enviarp=function  () {
+	// body...
+
+
+$http({method:'POST',
+	url:'/blog/create',
+	data:$.param({titulo3: $scope.titulo3, cuerpo3:$scope.cuerpo3})
+
+
+
+}).then(
+	function(response){
+	$scope.inte=response.data;
+	$scope.status2=response.status;
+	
+     
+
+
+       $timeout(function(){
+            $scope.$apply(function () {
+                  $scope.data.push($scope.inte[0]);
+            });
+
+            $scope.$digest();
+        });
+  
+
+
+},function(response){
+	 $scope.inte = response.data || 'Request failed';
+        $scope.status2 = response.status;
+
+}
+
+
+
+	);
+
+
+
+
+
+};
+
+
+
+	
+}]);
+
+
+/*
+
+Funcion para que funcion en django ya que tiene las mismas directivas  se reemplaza por {$ $}
+
+Configuraciones iniciales
+*/
+
+var my_app = angular.module('appPy').config(function($interpolateProvider,$httpProvider) {
+    $interpolateProvider.startSymbol('{$');
+    $interpolateProvider.endSymbol('$}');
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+    $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8';
+    $httpProvider.defaults.withCredentials = true;
+$httpProvider.defaults.cache=true;
+
+
+
+});
+
+
+
+</script>
+
+
+
+
+
+
+	
+</body>
+</html>
